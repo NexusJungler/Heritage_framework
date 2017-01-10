@@ -20,6 +20,16 @@ class BookEntityManager extends EntityManager
 
     public function addEntity(EntityInterface $entity)
     {
+        $query = $this->db->prepare('INSERT INTO book (title, author, body, genre) VALUES (:title, :author, :body, :genre)');
+        $query->bindValue(':title', $entity->getTitle());
+        $query->bindValue(':author', $entity->getAuthor());
+        $query->bindValue(':body', $entity->getBody());
+        $query->bindValue(':genre', $entity->getGenre());
+
+        $executed = $query->execute();
+        // $errors = $db->errorInfo();
+        // Kint::dump($errors);
+        // Kint::dump($executed);
     }
 
     public function getEntity($id)
@@ -59,7 +69,7 @@ class BookEntityManager extends EntityManager
         }
     }
 
-    public function deleteBook($id) {
+    public function deleteEntity($id) {
         $id = (int)$id;
 
         if ($id > 0) {

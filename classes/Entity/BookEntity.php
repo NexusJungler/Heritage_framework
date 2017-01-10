@@ -14,6 +14,7 @@ abstract class BookEntity implements EntityInterface
     private $title;
     private $author;
     private $body;
+    private $genre;
 
     protected $manager;
 
@@ -128,6 +129,22 @@ abstract class BookEntity implements EntityInterface
     public function setBody($body)
     {
         $this->body = $body;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getGenre()
+    {
+        return $this->genre;
+    }
+
+    /**
+     * @param mixed $genre
+     */
+    public function setGenre($genre)
+    {
+        $this->genre = $genre;
     }
 
 }

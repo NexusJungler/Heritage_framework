@@ -23,7 +23,7 @@ class Database
         self::$class = $class;
 
         if (is_null(self::$connection)) {
-            self::$connection = new self::$class("mysql:host=localhost;dbname=aston;", "root", "paris");
+            self::$connection = new self::$class("mysql:host=mysql.server.com;dbname=aston;", "olive", "tonton");
         }
 
         return self::$connection;
