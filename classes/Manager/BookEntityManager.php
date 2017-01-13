@@ -11,12 +11,7 @@ use Aston\Factory\EntityFactory;
  */
 class BookEntityManager extends EntityManager
 {
-    protected $db;
-
-    public function __construct(\PDO $db)
-    {
-        $this->db = $db;
-    }
+    protected $table = 'book';
 
     public function addEntity(EntityInterface $entity)
     {
@@ -27,19 +22,14 @@ class BookEntityManager extends EntityManager
         $query->bindValue(':genre', $entity->getGenre());
 
         $executed = $query->execute();
-        // $errors = $db->errorInfo();
-        // Kint::dump($errors);
-        // Kint::dump($executed);
-    }
-
-    public function getEntity($id)
-    {
+        $errors = $this->db->errorInfo();
     }
 
     public function getEntities(array $ids)
     {
     }
 
+    /*
     public function getLastEntities($offset, $limit)
     {
         $limit = (int)$limit;
@@ -50,32 +40,20 @@ class BookEntityManager extends EntityManager
             $query = $this->db->prepare('SELECT * FROM book LIMIT :offset, :limit');
             $query->bindValue(':offset', $offset, \PDO::PARAM_INT);
             $query->bindValue(':limit', $limit, \PDO::PARAM_INT);
-
             $executed = $query->execute();
             $result = $query->fetchAll(\PDO::FETCH_ASSOC);
 
             $books = [];
             if ($result) {
                 foreach ($result as $book) {
-                    $entity = EntityFactory::get('bd');
-                    $entity->hydrate($book);
-                    $books[] = $entity;
+                    $books[] = BookEntity::create($book);
                 }
             }
-
             return $books;
         } else {
             throw new \Exception('Mauvais type de donnée pour la limite.');
         }
     }
+    */
 
-    public function deleteEntity($id) {
-        $id = (int)$id;
-
-        if ($id > 0) {
-            $query = $this->db->prepare('DELETE FROM book WHERE id=:id');
-            $query->bindValue(':id', $id);
-            $query->execute();
-        }
-    }
 }

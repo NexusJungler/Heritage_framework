@@ -7,7 +7,9 @@
     "twig/twig": "^1.28",
     "szenis/routing": "^1.1",
     "psr/container": "dev-master",
-    "swiftmailer/swiftmailer": "^5.4"
+    "swiftmailer/swiftmailer": "^5.4",
+    "slim/csrf": "^0.8.1",
+    "respect/validation": "^1.1"
   },
   "require-dev": {
     "raveren/kint": "^1.0"

@@ -2,7 +2,6 @@
 
 namespace Aston\Factory;
 
-use Aston\Core\Database;
 
 /**
  * Created by PhpStorm.
@@ -12,19 +11,17 @@ use Aston\Core\Database;
  */
 class EntityFactory
 {
-    public static function get($entity_type)
+    public static function get($entity_class)
     {
-        $manager_class = 'Aston\Manager\\' . ucfirst($entity_type) . 'EntityManager';
-        $entity_class = 'Aston\Entity\\' . ucfirst($entity_type) . 'Entity';
-        $db = Database::getConnection('PDO');
 
         if (class_exists($entity_class)) {
-            $manager = new $manager_class($db);
+            $manager = EntityManagerFactory::get($entity_class);
             $entity = new $entity_class($manager);
+            $entity->setDependencyManager($manager);
             return $entity;
         }
         else {
-            throw new \Exception("Mauvais type d'entité donnée à la Factory d'entité.");
+            throw new \Exception("Mauvais type d'entité donné à la Factory d'entité.");
         }
     }
 }

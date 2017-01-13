@@ -1,8 +1,11 @@
 <?php
 
-use Aston\Core\Database;
-use Aston\Factory\EntityFactory;
+use Aston\Factory\EntityManagerFactory;
 use Aston\Core\ServiceContainer;
+use Aston\Entity\BookEntity;
+use Aston\Entity\AuthorEntity;
+use Slim\Csrf\Guard;
+use Respect\Validation\Validator as v;
 
 $router->add('/', 'GET', function () {
 
@@ -13,17 +16,42 @@ $router->add('/', 'GET', function () {
 $router->add('/book/list', 'GET', function () {
 
     $twig = ServiceContainer::getInstance()->get('twig');
-    $db = Database::getConnection('PDO');
-    $manager = new \Aston\Manager\BookEntityManager($db);
+    $manager = EntityManagerFactory::get('BookEntity');
     $books = $manager->getLastEntities(0, 10);
-
-    return $twig->render('book_list.html.twig', ['books' => $books]);
+    $entities = [];
+    if ($books) {
+        foreach ($books as $book) {
+            $entities[] = BookEntity::create($book);
+        }
+    }
+    return $twig->render('book_list.html.twig', ['books' => $entities]);
 });
 
 $router->add('/book/add', 'GET', function () {
 
+    $c = ServiceContainer::getInstance();
+    // Generate tokens
+    $slimGuard = $c->get('csrf');
+    $slimGuard->validateStorage();
+    $csrfNameKey = $slimGuard->getTokenNameKey();
+    $csrfValueKey = $slimGuard->getTokenValueKey();
+    $keyPair = $slimGuard->generateToken();
+
+    $token = [
+        'name' => $csrfNameKey,
+        'value' => $csrfValueKey,
+        'keypair' => $keyPair
+    ];
+
+    \Kint::dump($token);
+    $twig = $c->get('twig');
+    return $twig->render('book_form.html.twig', ['token' => $token]);
+});
+
+$router->add('/author/add', 'GET', function () {
+
     $twig = ServiceContainer::getInstance()->get('twig');
-    return $twig->render('book_form.html.twig');
+    return $twig->render('author_form.html.twig');
 });
 
 $router->add('/admin/log', 'GET', function () {
@@ -58,15 +86,60 @@ $router->add('/book/delete/{n:id}', 'GET', function ($id) {
 });
 
 $router->post('/book/post/add', function () {
-    $entity = EntityFactory::get('paperback');
-    $entity->hydrate($_POST);
+
+    // validation du formulaire
+    $numValidator = v::intVal()->between(1, 200);
+    $stringValidator = v::alpha()->length(1, 100);
+
+    foreach ($_POST as $field => $value) {
+        if (is_string($value)) {
+            if (!$stringValidator->validate($value)) {
+                header('Location: /book/add');
+            }
+        }
+        if (is_numeric($value)) {
+            if (!$numValidator->validate($value)) {
+                header('Location: /book/add');
+            }
+        }
+    }
+
+    $title = $_POST['title'];
+    if (!v::alpha()->length(1, 50)->validate($title)) {
+        header('Location: /book/add');
+    }
+
+    $slimGuard = new Guard;
+    $slimGuard->validateStorage();
+    $slimGuard->validateToken($_POST['csrf_name'], $_POST['csrf_value']);
+
+    if(key_exists($_POST['csrf_name'], $_SESSION['csrf'])) {
+        if($_SESSION['csrf'][$_POST['csrf_name']] != $_POST['csrf_value']) {
+            header('Location: /', true, 302);
+        }
+    } else {
+        header('Location: /', true, 302);
+    }
+    $entity = BookEntity::create($_POST);
+    // $entity->hydrate($_POST); dépréciée par la méthode create
     $entity->save();
     header('Location: /book/add');
 });
 
+$router->add('/book/add', 'GET', function () {
+
+    $twig = ServiceContainer::getInstance()->get('twig');
+    return $twig->render('book_form.html.twig');
+});
+
+$router->post('/author/post/add', function () {
+    $entity = AuthorEntity::create($_POST);
+    $entity->save();
+    header('Location: /author/add');
+});
+
 $router->post('/book/delete/confirm', function () {
-    $entity = EntityFactory::get('bd');
-    $entity->hydrate($_POST);
+    $entity = BookEntity::load($_POST['id']);
     $entity->delete();
     header('Location: /book/list');
 });

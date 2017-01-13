@@ -11,8 +11,8 @@ namespace Aston\Entity;
 
 interface EntityInterface
 {
-    public function create();
-    public function load($id);
+    public static function create(array $data);
+    public static function load($id);
     public function save();
     public function delete();
 
