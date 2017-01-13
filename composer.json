@@ -9,7 +9,9 @@
     "psr/container": "dev-master",
     "swiftmailer/swiftmailer": "^5.4",
     "slim/csrf": "^0.8.1",
-    "respect/validation": "^1.1"
+    "respect/validation": "^1.1",
+    "illuminate/container": "^5.3",
+    "illuminate/database": "^5.3"
   },
   "require-dev": {
     "raveren/kint": "^1.0"
@@ -30,5 +32,8 @@
       "Aston\\Service\\": "classes/Service/",
       "App\\": "app/"
     }
+  },
+  "scripts": {
+    "schema": "php app/createDbSchemas.php"
   }
 }

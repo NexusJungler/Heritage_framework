@@ -43,7 +43,12 @@ $router->add('/book/add', 'GET', function () {
         'keypair' => $keyPair
     ];
 
-    \Kint::dump($token);
+    //\Kint::dump($token);
+    /* LARAVEL
+    $c->get('capsule');
+    $authors = \Aston\Entity\author::all();
+    $genres = \Aston\Entity\genre::all();
+    */
     $twig = $c->get('twig');
     return $twig->render('book_form.html.twig', ['token' => $token]);
 });
@@ -121,8 +126,13 @@ $router->post('/book/post/add', function () {
         header('Location: /', true, 302);
     }
     $entity = BookEntity::create($_POST);
-    // $entity->hydrate($_POST); dépréciée par la méthode create
     $entity->save();
+    /* Laravel
+       Il faut changer le nom des champs du formulaire pour genre_id et author_id pour que çà fonctionne!
+       book::create($_POST);
+
+
+    */
     header('Location: /book/add');
 });
 

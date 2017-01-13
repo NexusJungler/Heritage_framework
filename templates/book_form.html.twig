@@ -12,6 +12,11 @@
         <div class="form-group">
             <label for="author" class="col-sm-2 control-label">Auteur</label>
             <div class="col-sm-10">
+                <select name="author_id" id="author_id" class="form-control">
+                    {% for author in authors %}
+                        <option value="{{ author.id }}">{{ author.title }}</option>
+                    {% end for %}
+                </select>
                 <input name="author" type="text" class="form-control" id="author" placeholder="Auteur">
             </div>
         </div>
